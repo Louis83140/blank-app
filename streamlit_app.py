@@ -2,42 +2,57 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 
-# Titre de l'application
-st.title('Calculateur de Yield Management')
+# En-tête et sous-titre avec emojis
+st.title("💼 Calculateur de Yield Management")
+st.subheader("Optimisez vos prix en fonction de la demande 📊")
+st.markdown("Cette application vous permet de **calculer le prix idéal** pour vos services en fonction de la demande, du taux d'occupation, et de l'élasticité de la demande.")
 
-# Entrée utilisateur pour les variables
-revenu_maximum = st.number_input("Revenu maximum (en euros)", value=1000)
-taux_occupation_cible = st.slider("Taux d'occupation cible (en %)", 0.0, 1.0, 0.85)
-taux_occupation_actuel = st.slider("Taux d'occupation actuel (en %)", 0.0, 1.0, 0.75)
-elasticite_demande = st.number_input("Élasticité de la demande", value=1.5)
+# Barre latérale pour les paramètres
+st.sidebar.header("🔧 Paramètres")
+revenu_maximum = st.sidebar.number_input("💶 Revenu maximum (en euros)", value=1000)
+elasticite_demande = st.sidebar.number_input("📈 Élasticité de la demande", value=1.5)
 
-# Fonction pour calculer le prix idéal
+# Colonnes pour les sliders
+col1, col2 = st.columns(2)
+with col1:
+    taux_occupation_cible = st.slider("Taux d'occupation cible", 0.0, 1.0, 0.85)
+
+with col2:
+    taux_occupation_actuel = st.slider("Taux d'occupation actuel", 0.0, 1.0, 0.75)
+
+# Calcul du prix idéal
 def calculer_prix_ideal(revenu_maximum, taux_occupation_cible, taux_occupation_actuel, elasticite_demande):
     prix_ideal = (revenu_maximum * taux_occupation_cible) / (
         1 + elasticite_demande * (taux_occupation_cible - taux_occupation_actuel)
     )
     return prix_ideal
 
-# Calculer le prix idéal en fonction des entrées utilisateur
 prix = calculer_prix_ideal(revenu_maximum, taux_occupation_cible, taux_occupation_actuel, elasticite_demande)
+st.write(f"### 💰 Le prix idéal est : **{prix:.2f} euros**")
 
-# Afficher le résultat
-st.write(f"Le prix idéal est : {prix:.2f} euros")
-
-# Créer un DataFrame pour afficher les résultats
+# DataFrame et graphique
 data = pd.DataFrame({
-    'Taux occupation': [taux_occupation_cible, taux_occupation_actuel],  # Renommé sans apostrophe
-    'Prix idéal': [prix, prix * 0.9]  # Exemple de variation de prix
+    "Taux occupation": [taux_occupation_cible, taux_occupation_actuel],
+    "Prix idéal": [prix, prix * 0.9]
 })
 
-# Afficher les données sous forme de tableau
+st.write("### 🔍 Résultats détaillés")
 st.write(data)
 
-# Créer un graphique avec Altair
-chart = alt.Chart(data).mark_line().encode(
-    x='Taux occupation',  # Utilise le nom sans apostrophe
+# Graphique Altair avec personnalisation
+chart = alt.Chart(data).mark_line(color='orange', strokeWidth=3).encode(
+    x='Taux occupation',
     y='Prix idéal'
+).properties(
+    width=600,
+    height=400,
+    title="📊 Évolution du prix en fonction du taux d'occupation"
 )
-
-# Afficher le graphique dans Streamlit
 st.altair_chart(chart, use_container_width=True)
+
+# Section déroulante pour les explications
+with st.expander("ℹ️ Comment fonctionne cette application ?"):
+    st.write("""
+        Cette application utilise des formules économiques pour calculer le **prix idéal** selon différents paramètres.
+        Vous pouvez ajuster les variables dans les champs ci-dessus pour voir les résultats en temps réel.
+    """)
