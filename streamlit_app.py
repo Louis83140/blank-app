@@ -1,6 +1,5 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 import plotly.express as px
 
 def calculate_dynamic_price(base_price, season, anticipation, demand, difficulty, special_trip):
